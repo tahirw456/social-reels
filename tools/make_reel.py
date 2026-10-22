@@ -11,12 +11,13 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
 
 W, H, FPS = 1080, 1920, 30
 
+FD = os.environ.get("FONT_DIR", "")
 FONTS = {
-    "sans": ["/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc",
+    "sans": [os.path.join(FD, "ArchivoBlack-Regular.ttf"),"/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc",
              "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"],
-    "sans_reg": ["/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc",
+    "sans_reg": [os.path.join(FD, "Lato-Bold.ttf"),"/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc",
                  "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
-    "serif": ["/usr/share/fonts/opentype/noto/NotoSerifCJK-SemiBold.ttc",
+    "serif": [os.path.join(FD, "DMSerifDisplay-Regular.ttf"),"/usr/share/fonts/opentype/noto/NotoSerifCJK-SemiBold.ttc",
               "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"],
 }
 
@@ -126,7 +127,7 @@ def main():
 
     n = int(a.seconds * FPS)
     proc = subprocess.Popen([
-        "ffmpeg", "-y", "-loglevel", "error",
+        os.environ.get("FFMPEG", "ffmpeg"), "-y", "-loglevel", "error",
         "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
         "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
         "-shortest", "-c:v", "libx264", "-preset", "veryfast", "-crf", "24",

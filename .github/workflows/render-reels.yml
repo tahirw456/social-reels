@@ -22,13 +22,20 @@ jobs:
         run: python3 tools/render_jobs.py --check >> "$GITHUB_OUTPUT"
       - name: Install tools
         if: steps.check.outputs.pending == '1'
+        timeout-minutes: 5
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk fonts-dejavu-core > /dev/null
-          pip install -q pillow
+          pip install -q pillow imageio-ffmpeg
+          echo "FFMPEG=$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')" >> "$GITHUB_ENV"
+          mkdir -p /tmp/fonts
+          for f in ArchivoBlack-Regular DMSerifDisplay-Regular Lato-Bold Lato-Regular; do
+            curl -sSfL -A "Mozilla/5.0 reel-bot" -o /tmp/fonts/$f.ttf https://chinacargohub.com/wp-content/uploads/ccb-bot/fonts/$f.ttf || true
+          done
+          echo "FONT_DIR=/tmp/fonts" >> "$GITHUB_ENV"
+          ls -la /tmp/fonts
       - name: Render and publish
         if: steps.check.outputs.pending == '1'
         run: |
           git config user.name "reel-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           python3 tools/render_jobs.py --render
+        timeout-minutes: 10
