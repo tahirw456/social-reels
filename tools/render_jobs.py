@@ -51,10 +51,15 @@ def main():
         ip = "/tmp/reelwork/%s.jpg" % j["id"]
         open(ip, "wb").write(img)
         out = os.path.join(ROOT, "reels", j["id"] + ".mp4")
+        music = "/tmp/reelwork/%s.wav" % j["id"]
+        mood = "chill" if j.get("style") == "serif" else "upbeat"
+        if subprocess.run(["python3", os.path.join(HERE, "make_music.py"), "--out", music, "--seconds",
+                           str(j.get("seconds", 12)), "--mood", mood, "--seed", j["id"]]).returncode != 0:
+            music = ""
         cmd = ["python3", os.path.join(HERE, "make_reel.py"), "--image", ip, "--out", out,
                "--hook", j.get("hook", ""), "--cta", j.get("cta", ""), "--sub", j.get("sub", "Follow for more"),
                "--accent", j.get("accent", "#F28C28"), "--style", j.get("style", "sans"),
-               "--seconds", str(j.get("seconds", 12))]
+               "--seconds", str(j.get("seconds", 12))] + (["--music", music] if music else [])
         if subprocess.run(cmd).returncode == 0 and os.path.exists(out):
             made.append(j["id"])
     if not made:

@@ -24,7 +24,7 @@ jobs:
         if: steps.check.outputs.pending == '1'
         timeout-minutes: 5
         run: |
-          pip install -q pillow imageio-ffmpeg
+          pip install -q pillow imageio-ffmpeg numpy
           echo "FFMPEG=$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')" >> "$GITHUB_ENV"
           mkdir -p /tmp/fonts
           for f in ArchivoBlack-Regular DMSerifDisplay-Regular Lato-Bold Lato-Regular; do

@@ -81,6 +81,7 @@ def main():
     ap.add_argument("--accent", default="#F28C28")
     ap.add_argument("--style", default="sans", choices=["sans", "serif"])
     ap.add_argument("--seconds", type=float, default=12)
+    ap.add_argument("--music", default="", help="WAV/MP3 background track; silent if empty")
     a = ap.parse_args()
 
     accent = hex2rgb(a.accent)
@@ -129,9 +130,10 @@ def main():
     proc = subprocess.Popen([
         os.environ.get("FFMPEG", "ffmpeg"), "-y", "-loglevel", "error",
         "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-        "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+        *(["-i", a.music] if a.music else ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100"]),
+        "-map", "0:v", "-map", "1:a",
         "-shortest", "-c:v", "libx264", "-preset", "veryfast", "-crf", "24",
-        "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "aac", "-b:a", "96k",
+        "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "aac", "-b:a", "160k",
         "-movflags", "+faststart", a.out], stdin=subprocess.PIPE)
 
     for i in range(n):
